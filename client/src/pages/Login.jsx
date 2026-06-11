@@ -1,22 +1,43 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
-import { Leaf, Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Leaf, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
-  const { register: registerForm, handleSubmit, formState: { errors } } = useForm();
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = async (data) => {
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
     setError('');
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email.includes('@')) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (!password) {
+      setError('Password cannot be empty.');
+      return;
+    }
+
     setLoading(true);
     try {
-      await login(data.email, data.password);
+      await login(email, password);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to login. Please check your credentials and try again.');
@@ -37,7 +58,7 @@ const Login = () => {
             <p className="text-gray-600 dark:text-gray-400 mt-2">Sign in to continue tracking your carbon footprint</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email Address
@@ -50,18 +71,10 @@ const Login = () => {
                   className="input"
                   style={{ paddingLeft: '2.5rem' }}
                   placeholder="you@example.com"
-                  {...registerForm('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address'
-                    }
-                  })}
+                  value={email}
+                  onChange={handleEmailChange}
                 />
               </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red">{errors.email.message}</p>
-              )}
             </div>
 
             <div>
@@ -76,13 +89,8 @@ const Login = () => {
                   className="input"
                   style={{ paddingLeft: '2.5rem', paddingRight: '2.75rem' }}
                   placeholder="Enter your password"
-                  {...registerForm('password', {
-                    required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters'
-                    }
-                  })}
+                  value={password}
+                  onChange={handlePasswordChange}
                 />
                 <button
                   type="button"
@@ -93,9 +101,6 @@ const Login = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red">{errors.password.message}</p>
-              )}
               <div className="mt-2 text-right">
                 <Link
                   to="/forgot-password"
@@ -115,10 +120,7 @@ const Login = () => {
             </button>
 
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 dark:bg-red/10 dark:border-red/20">
-                <AlertCircle className="w-5 h-5 text-red flex-shrink-0 mt-0.5" />
-                <p className="text-red text-sm">{error}</p>
-              </div>
+              <p style={{ color: 'red', fontSize: '14px' }}>{error}</p>
             )}
           </form>
 
