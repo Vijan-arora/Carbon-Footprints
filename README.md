@@ -1,61 +1,111 @@
-# CarbonTrace - Carbon Footprint Awareness Platform
+# 🌿 CarbonTrace — Carbon Footprint Awareness Platform
 
-A full-stack web application for tracking and reducing your personal carbon footprint. Monitor daily activities, visualize emissions trends, and get personalized tips for sustainable living.
+> **[Challenge 3] Carbon Footprint Awareness Platform**
+> Design a solution that helps individuals understand, track, and reduce their carbon footprint through simple actions and personalized insights.
 
-## Features
 
-- **Activity Logging**: Track transport, energy use, food consumption, and shopping habits
-- **Real-time Dashboard**: Animated carbon dial showing daily progress against personal goals
-- **Category Analysis**: Breakdown by Transport, Energy, Food, and Shopping with trend indicators
-- **Weekly & Monthly Reports**: Visual charts with goal overlays and comparisons
-- **Streak Tracking**: Gamification through daily goal achievements
-- **Personalized Tips**: Context-aware suggestions for reducing emissions
-- **Dark Mode**: Full dark mode support with system preference detection
-- **Responsive Design**: Mobile-first design for all screen sizes
 
-## Tech Stack
+---
+
+## 👨‍💻 Built By
+
+**Vijan Arora**
+BCA Student — DIT University, Dehradun, Uttarakhand
+
+- LinkedIn: [linkedin.com/in/vijan-arora-](https://linkedin.com/in/vijan-arora-)
+- GitHub: [github.com/Vijan-arora](https://github.com/Vijan-arora)
+
+---
+
+## 🌍 Problem Statement
+
+The average person generates **4–14 kg of CO₂ per day** through transport, food, energy, and shopping — yet most people have no visibility into their personal impact. CarbonTrace solves this by making carbon tracking as simple as logging a meal: fast, visual, and actionable.
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---|---|
+| 🎯 **Animated Carbon Dial** | Real-time SVG arc dial showing daily CO₂ vs. world average (14.2 kg/day) |
+| 📊 **Category Breakdown** | Transport, Energy, Food, and Shopping tracked separately with trend indicators |
+| 📝 **Activity Logger** | Log any activity in seconds using 25+ pre-seeded emission factors |
+| 📈 **Weekly & Monthly Reports** | Bar and line charts with personal goal overlays |
+| 🔥 **Streak Tracker** | Gamified daily goal streaks to build sustainable habits |
+| 💡 **Personalized Tips** | Context-aware reduction suggestions based on your highest emission category |
+| 🌙 **Dark Mode** | Full dark mode with system preference detection |
+| 📱 **Responsive Design** | Mobile-first, works on all screen sizes |
+| 🔐 **JWT Authentication** | Secure email + password login with per-user data isolation |
+
+---
+
+## 🏗️ Tech Stack
 
 ### Frontend
-- React 18 + Vite
-- Tailwind CSS v3
-- Recharts (data visualization)
-- React Router v6
-- Axios
-- React Hook Form
+- **React 18** + Vite — fast, modern UI
+- **Tailwind CSS v3** — utility-first styling
+- **Recharts** — interactive data visualizations
+- **React Router v6** — client-side routing
+- **Axios** — API communication with JWT interceptor
+- **React Hook Form** — form validation
 
 ### Backend
-- Node.js 20 + Express.js
-- Prisma ORM
-- PostgreSQL
-- bcryptjs (password hashing)
-- jsonwebtoken (JWT authentication)
+- **Node.js 20** + **Express.js** — REST API server
+- **Prisma ORM** + **PostgreSQL** — type-safe database access
+- **bcryptjs** — password hashing (10 rounds)
+- **jsonwebtoken** — JWT auth (7-day expiry)
+- **Concurrently** + **Nodemon** — smooth dev experience
 
-### Dev Tools
-- Nodemon (auto-restart)
-- Concurrently (parallel scripts)
+---
 
-## Prerequisites
+## 📁 Project Structure
 
+```
+carbontrace/
+├── client/                    # React + Vite frontend
+│   ├── src/
+│   │   ├── components/        # CarbonDial, CategoryCards, WeeklyChart, etc.
+│   │   ├── pages/             # Dashboard, Login, Register, Reports, Settings
+│   │   ├── context/           # AuthContext, LogContext
+│   │   ├── api/               # Axios instance with JWT interceptor
+│   │   └── main.jsx
+│   └── vite.config.js         # Proxy: /api → localhost:5000
+├── server/                    # Node.js + Express backend
+│   ├── routes/                # auth.js, logs.js, stats.js, user.js, factors.js
+│   ├── middleware/            # auth.js (JWT verification)
+│   ├── controllers/           # Business logic per route
+│   ├── prisma/
+│   │   ├── schema.prisma      # User, ActivityLog, EmissionFactor models
+│   │   └── seed.js            # 25+ emission factors pre-seeded
+│   └── index.js
+├── .env.example
+├── package.json               # Root: concurrently scripts
+└── README.md
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
 - Node.js 20+
 - PostgreSQL 14+
 - Git
 
-## Installation
-
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/carbontrace.git
-cd carbontrace
+git clone https://github.com/Vijan-arora/Carbon-Footprints.git
+cd Carbon-Footprints
 ```
 
-### 2. Copy environment file
+### 2. Set up environment variables
 
 ```bash
 cp .env.example server/.env
 ```
 
-Edit `server/.env` with your database credentials:
+Edit `server/.env`:
 ```env
 DATABASE_URL=postgresql://your_user:your_password@localhost:5432/carbontrace
 JWT_SECRET=your_secure_secret_at_least_32_characters
@@ -64,319 +114,166 @@ PORT=5000
 CLIENT_URL=http://localhost:5173
 ```
 
-### 3. Create PostgreSQL database
+### 3. Create the PostgreSQL database
 
 ```bash
 createdb carbontrace
 ```
 
-Or using psql:
-```sql
-CREATE DATABASE carbontrace;
-```
-
-### 4. Install dependencies and setup
+### 4. Install dependencies and set up database
 
 ```bash
 npm run setup
 ```
 
-This command:
-1. Installs root dependencies
-2. Installs client dependencies
-3. Installs server dependencies
-4. Runs Prisma migrations
-5. Seeds the database with emission factors
+This single command: installs all dependencies → runs Prisma migrations → seeds 25+ emission factors.
 
-### 5. Start development server
+### 5. Start the development server
 
 ```bash
 npm run dev
 ```
 
-This runs both frontend and backend concurrently:
 - Frontend: http://localhost:5173
-- Backend: http://localhost:5000
-
-## API Documentation
-
-### Authentication
-
-#### POST /api/auth/register
-
-Create a new user account.
-
-**Request:**
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "securepassword"
-}
-```
-
-**Response:**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com",
-    "daily_goal_kg": 6.0,
-    "streak_days": 0
-  }
-}
-```
-
-#### POST /api/auth/login
-
-Authenticate an existing user.
-
-**Request:**
-```json
-{
-  "email": "john@example.com",
-  "password": "securepassword"
-}
-```
-
-**Response:** Same as register
+- Backend API: http://localhost:5000
 
 ---
 
-### Activity Logs
+## 📡 API Reference
 
-#### GET /api/logs?date=YYYY-MM-DD
+### Auth
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Create account → returns JWT |
+| POST | `/api/auth/login` | Login → returns JWT + user |
 
-Get all activity logs for a specific date.
+### Activity Logs *(requires Bearer token)*
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/logs?date=YYYY-MM-DD` | Get logs for a specific date |
+| POST | `/api/logs` | Create a log entry |
+| DELETE | `/api/logs/:id` | Delete a log (owner only) |
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+### Statistics *(requires Bearer token)*
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/stats/weekly` | Last 7 days — totals, best/worst day |
+| GET | `/api/stats/monthly` | Last 30 days — totals, savings vs world avg |
 
-**Response:**
-```json
-[
-  {
-    "id": 1,
-    "user_id": 1,
-    "category": "Transport",
-    "activity_name": "Petrol Car",
-    "quantity": 10,
-    "emission_factor": 0.21,
-    "total_kg": 2.1,
-    "logged_at": "2024-01-15T08:30:00.000Z"
-  }
-]
-```
-
-#### POST /api/logs
-
-Create a new activity log.
-
-**Request:**
-```json
-{
-  "category": "Transport",
-  "activity_name": "Petrol Car",
-  "quantity": 10,
-  "emission_factor": 0.21
-}
-```
-
-**Response:** The created log object with calculated `total_kg`
-
-#### DELETE /api/logs/:id
-
-Delete an activity log (only if owned by authenticated user).
+### User & Factors
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/user/me` | Get current user profile |
+| PUT | `/api/user/goal` | Update daily CO₂ goal |
+| GET | `/api/factors` | Get all emission factors by category |
 
 ---
 
-### Statistics
+## 📊 Emission Factors (Pre-seeded)
 
-#### GET /api/stats/weekly
+### 🚗 Transport (8 factors)
+| Activity | CO₂ Factor | Unit |
+|----------|-----------|------|
+| Petrol Car | 0.21 kg | per km |
+| Diesel Car | 0.19 kg | per km |
+| Bus | 0.089 kg | per km |
+| Metro | 0.041 kg | per km |
+| Bicycle | 0 kg | per km |
+| Domestic Flight | 0.255 kg | per km |
+| Auto-Rickshaw | 0.075 kg | per km |
+| Electric Car | 0.053 kg | per km |
 
-Get weekly statistics (last 7 days).
+### ⚡ Energy (6 factors)
+| Activity | CO₂ Factor | Unit |
+|----------|-----------|------|
+| Electricity (India grid) | 0.708 kg | per kWh |
+| LPG Cooking | 0.52 kg | per hour |
+| Diesel Generator | 2.68 kg | per hour |
+| Air Conditioner | 1.06 kg | per hour |
+| Water Heater | 2.12 kg | per hour |
+| Ceiling Fan | 0.05 kg | per hour |
 
-**Response:**
-```json
-{
-  "days": [
-    { "date": "2024-01-09", "total": 5.2 },
-    { "date": "2024-01-10", "total": 3.8 }
-  ],
-  "bestDay": { "date": "2024-01-10", "total": 3.8 },
-  "worstDay": { "date": "2024-01-09", "total": 5.2 },
-  "goal": 6.0,
-  "weekTotal": 9.0
+### 🥗 Food (7 factors)
+| Activity | CO₂ Factor | Unit |
+|----------|-----------|------|
+| Beef Meal | 6.0 kg | per meal |
+| Chicken Meal | 1.8 kg | per meal |
+| Vegetarian Meal | 0.8 kg | per meal |
+| Vegan Meal | 0.4 kg | per meal |
+| Dairy | 1.2 kg | per 100g |
+| Eggs | 0.25 kg | per unit |
+| Rice | 0.28 kg | per 100g |
+
+### 🛍️ Shopping (4 factors)
+| Activity | CO₂ Factor | Unit |
+|----------|-----------|------|
+| New Clothing Item | 15.0 kg | per item |
+| Electronics Device | 350.0 kg | per device |
+| Online Delivery Package | 0.5 kg | per package |
+| Plastic Bag | 0.08 kg | per bag |
+
+---
+
+## 🗄️ Database Schema
+
+```prisma
+model User {
+  id             Int           @id @default(autoincrement())
+  name           String
+  email          String        @unique
+  password_hash  String
+  daily_goal_kg  Float         @default(6.0)
+  streak_days    Int           @default(0)
+  created_at     DateTime      @default(now())
+  logs           ActivityLog[]
 }
-```
 
-#### GET /api/stats/monthly
+model ActivityLog {
+  id              Int      @id @default(autoincrement())
+  user_id         Int
+  category        String
+  activity_name   String
+  quantity        Float
+  emission_factor Float
+  total_kg        Float
+  logged_at       DateTime @default(now())
+  user            User     @relation(fields: [user_id], references: [id])
+}
 
-Get monthly statistics (last 30 days).
-
-**Response:**
-```json
-{
-  "days": [...],
-  "monthTotal": 150.5,
-  "worldAvgDaily": 4.0,
-  "savedVsWorldAvg": 30.5,
-  "goal": 6.0
+model EmissionFactor {
+  id              Int    @id @default(autoincrement())
+  category        String
+  name            String
+  factor_per_unit Float
+  unit            String
+  description     String
 }
 ```
 
 ---
 
-### User Settings
-
-#### GET /api/user/me
-
-Get current user profile.
-
-#### PUT /api/user/goal
-
-Update daily goal.
-
-**Request:**
-```json
-{
-  "daily_goal_kg": 5.5
-}
-```
-
----
-
-### Emission Factors
-
-#### GET /api/factors
-
-Get all emission factors grouped by category.
-
-**Response:**
-```json
-{
-  "Transport": [
-    {
-      "id": 1,
-      "category": "Transport",
-      "name": "Petrol Car",
-      "factor_per_unit": 0.21,
-      "unit": "km",
-      "description": "Average petrol car emissions per kilometer"
-    }
-  ],
-  "Energy": [...],
-  "Food": [...],
-  "Shopping": [...]
-}
-```
-
-## Emission Factors
-
-The app includes 25+ pre-seeded emission factors across 4 categories:
-
-### Transport (8 factors)
-| Activity | Factor | Unit |
-|----------|--------|------|
-| Petrol Car | 0.21 kg | km |
-| Diesel Car | 0.19 kg | km |
-| Bus | 0.089 kg | km |
-| Metro | 0.041 kg | km |
-| Bicycle | 0 kg | km |
-| Domestic Flight | 0.255 kg | km |
-| Auto-Rickshaw | 0.075 kg | km |
-| Electric Car | 0.053 kg | km |
-
-### Energy (6 factors)
-| Activity | Factor | Unit |
-|----------|--------|------|
-| Electricity | 0.708 kg | kWh |
-| LPG Cooking | 0.52 kg | hour |
-| Diesel Generator | 2.68 kg | hour |
-| Air Conditioner | 1.06 kg | hour |
-| Water Heater | 2.12 kg | hour |
-| Ceiling Fan | 0.05 kg | hour |
-
-### Food (7 factors)
-| Activity | Factor | Unit |
-|----------|--------|------|
-| Beef Meal | 6.0 kg | meal |
-| Chicken Meal | 1.8 kg | meal |
-| Vegetarian Meal | 0.8 kg | meal |
-| Vegan Meal | 0.4 kg | meal |
-| Dairy | 1.2 kg | 100g |
-| Eggs | 0.25 kg | unit |
-| Rice | 0.28 kg | 100g |
-
-### Shopping (4 factors)
-| Activity | Factor | Unit |
-|----------|--------|------|
-| New Clothing Item | 15.0 kg | item |
-| Electronics Device | 350.0 kg | device |
-| Online Delivery Package | 0.5 kg | package |
-| Plastic Bag | 0.08 kg | bag |
-
-## Screenshots
-
-[Placeholder for screenshots]
-
-## Reset Database
-
-To reset the database and reseed:
-
-```bash
-cd server
-npx prisma migrate reset
-npx prisma db seed
-```
-
-Or to completely reset and start fresh:
+## 🔄 Reset Database
 
 ```bash
 cd server
 npx prisma migrate reset --force
-npm run prisma:migrate
-npm run prisma:seed
+npx prisma db seed
 ```
 
-## Project Structure
+---
 
-```
-carbontrace/
-├── client/                    # React frontend
-│   ├── src/
-│   │   ├── components/        # Reusable UI components
-│   │   ├── pages/             # Route pages
-│   │   ├── context/           # React Context providers
-│   │   ├── api/               # API configuration
-│   │   └── main.jsx           # Entry point
-│   ├── index.html
-│   └── vite.config.js
-├── server/                    # Express backend
-│   ├── routes/                # API route definitions
-│   ├── middleware/            # Custom middleware
-│   ├── controllers/           # Route handlers
-│   ├── prisma/
-│   │   ├── schema.prisma      # Database schema
-│   │   └── seed.js            # Emission factors seed
-│   └── index.js               # Server entry point
-├── .env.example
-├── package.json               # Root package with scripts
-└── README.md
-```
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes: `git commit -m 'Add your feature'`
+4. Push to the branch: `git push origin feature/your-feature`
 5. Open a Pull Request
 
-## License
+---
 
-MIT License - see LICENSE file for details.
+
+
+Built with 💚 for a greener planet by **Vijan Arora**
+
+*DIT University, Dehradun · BCA 2024–2027*
