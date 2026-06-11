@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
-import { Leaf, Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { Leaf, Mail, Lock, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const Register = () => {
   const { register: registerForm, handleSubmit, watch, formState: { errors } } = useForm();
@@ -10,8 +10,29 @@ const Register = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const password = watch('password');
+
+  const getPasswordStrength = (pwd) => {
+    if (!pwd) return { strength: 0, label: '', color: '' };
+
+    let score = 0;
+    if (pwd.length >= 6) score += 1;
+    if (pwd.length >= 8) score += 1;
+    if (/[A-Z]/.test(pwd)) score += 1;
+    if (/[a-z]/.test(pwd)) score += 1;
+    if (/[0-9]/.test(pwd)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+
+    if (score <= 2) return { strength: 25, label: 'Weak', color: 'bg-red', textColor: 'text-red' };
+    if (score <= 3) return { strength: 50, label: 'Fair', color: 'bg-amber', textColor: 'text-amber' };
+    if (score <= 4) return { strength: 75, label: 'Good', color: 'bg-blue', textColor: 'text-blue' };
+    return { strength: 100, label: 'Strong', color: 'bg-green-leaf', textColor: 'text-green-leaf' };
+  };
+
+  const passwordStrength = getPasswordStrength(password);
 
   const onSubmit = async (data) => {
     setError('');
@@ -39,13 +60,6 @@ const Register = () => {
             <p className="text-gray-600 dark:text-gray-400 mt-2">Start your journey to a lower carbon footprint</p>
           </div>
 
-          {error && (
-            <div className="mb-6 p-4 bg-red/10 border border-red/20 rounded-lg flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-red flex-shrink-0" />
-              <p className="text-red text-sm">{error}</p>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -56,7 +70,8 @@ const Register = () => {
                 <input
                   id="name"
                   type="text"
-                  className="input pl-10"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-sage transition-all duration-200"
+                  style={{ paddingLeft: '2.5rem' }}
                   placeholder="John Doe"
                   {...registerForm('name', {
                     required: 'Name is required',
@@ -81,7 +96,8 @@ const Register = () => {
                 <input
                   id="email"
                   type="email"
-                  className="input pl-10"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-sage transition-all duration-200"
+                  style={{ paddingLeft: '2.5rem' }}
                   placeholder="you@example.com"
                   {...registerForm('email', {
                     required: 'Email is required',
@@ -105,8 +121,9 @@ const Register = () => {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   id="password"
-                  type="password"
-                  className="input pl-10"
+                  type={showPassword ? 'text' : 'password'}
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-sage transition-all duration-200"
+                  style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
                   placeholder="Create a password"
                   {...registerForm('password', {
                     required: 'Password is required',
@@ -116,9 +133,34 @@ const Register = () => {
                     }
                   })}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
               {errors.password && (
                 <p className="mt-1 text-sm text-red">{errors.password.message}</p>
+              )}
+
+              {/* Password Strength Indicator */}
+              {password && (
+                <div className="mt-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Password strength</span>
+                    <span className={`text-xs font-medium ${passwordStrength.textColor}`}>
+                      {passwordStrength.label}
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${passwordStrength.color} transition-all duration-300 ease-out rounded-full`}
+                      style={{ width: `${passwordStrength.strength}%` }}
+                    />
+                  </div>
+                </div>
               )}
             </div>
 
@@ -130,14 +172,22 @@ const Register = () => {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   id="confirmPassword"
-                  type="password"
-                  className="input pl-10"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-sage transition-all duration-200"
+                  style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
                   placeholder="Confirm your password"
                   {...registerForm('confirmPassword', {
                     required: 'Please confirm your password',
                     validate: value => value === password || 'Passwords do not match'
                   })}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
               {errors.confirmPassword && (
                 <p className="mt-1 text-sm text-red">{errors.confirmPassword.message}</p>
@@ -152,6 +202,14 @@ const Register = () => {
               {loading ? 'Creating Account...' : 'Create Account'}
             </button>
           </form>
+
+          {/* Error message area below form */}
+          {error && (
+            <div className="mt-6 p-4 bg-red/10 border border-red/20 rounded-lg flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red flex-shrink-0" />
+              <p className="text-red text-sm font-medium">{error}</p>
+            </div>
+          )}
 
           <p className="mt-6 text-center text-gray-600 dark:text-gray-400">
             Already have an account?{' '}
