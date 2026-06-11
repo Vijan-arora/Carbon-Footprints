@@ -2,7 +2,21 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
-import { Leaf, Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { Leaf, Mail, Lock, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
+
+const getPasswordStrength = (password) => {
+  if (!password) return { score: 0, label: '', color: '' };
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  if (score <= 1) return { score, label: 'Weak', color: '#E24B4A' };
+  if (score <= 2) return { score, label: 'Fair', color: '#EF9F27' };
+  if (score <= 3) return { score, label: 'Good', color: '#378ADD' };
+  return { score, label: 'Strong', color: '#4A7C59' };
+};
 
 const Register = () => {
   const { register: registerForm, handleSubmit, watch, formState: { errors } } = useForm();
@@ -10,13 +24,15 @@ const Register = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  const password = watch('password');
+  const password = watch('password', '');
+  const strength = getPasswordStrength(password);
 
   const onSubmit = async (data) => {
     setError('');
     setLoading(true);
-
     try {
       await register(data.name, data.email, data.password);
       navigate('/dashboard');
@@ -40,8 +56,8 @@ const Register = () => {
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red/10 border border-red/20 rounded-lg flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-red flex-shrink-0" />
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 dark:bg-red/10 dark:border-red/20">
+              <AlertCircle className="w-5 h-5 text-red flex-shrink-0 mt-0.5" />
               <p className="text-red text-sm">{error}</p>
             </div>
           )}
@@ -52,18 +68,16 @@ const Register = () => {
                 Full Name
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
                   id="name"
                   type="text"
-                  className="input pl-10"
+                  className="input"
+                  style={{ paddingLeft: '2.5rem' }}
                   placeholder="John Doe"
                   {...registerForm('name', {
                     required: 'Name is required',
-                    minLength: {
-                      value: 2,
-                      message: 'Name must be at least 2 characters'
-                    }
+                    minLength: { value: 2, message: 'Name must be at least 2 characters' }
                   })}
                 />
               </div>
@@ -77,11 +91,12 @@ const Register = () => {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
                   id="email"
                   type="email"
-                  className="input pl-10"
+                  className="input"
+                  style={{ paddingLeft: '2.5rem' }}
                   placeholder="you@example.com"
                   {...registerForm('email', {
                     required: 'Email is required',
@@ -102,23 +117,48 @@ const Register = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
                   id="password"
-                  type="password"
-                  className="input pl-10"
+                  type={showPassword ? 'text' : 'password'}
+                  className="input"
+                  style={{ paddingLeft: '2.5rem', paddingRight: '2.75rem' }}
                   placeholder="Create a password"
                   {...registerForm('password', {
                     required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters'
-                    }
+                    minLength: { value: 6, message: 'Password must be at least 6 characters' }
                   })}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
               {errors.password && (
                 <p className="mt-1 text-sm text-red">{errors.password.message}</p>
+              )}
+
+              {password && (
+                <div className="mt-2">
+                  <div className="flex gap-1 mb-1">
+                    {[1, 2, 3, 4].map((segment) => (
+                      <div
+                        key={segment}
+                        className="h-1.5 flex-1 rounded-full transition-all duration-300"
+                        style={{
+                          backgroundColor: strength.score >= segment ? strength.color : '#E5E7EB'
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs font-medium" style={{ color: strength.color }}>
+                    {strength.label} password
+                  </p>
+                </div>
               )}
             </div>
 
@@ -127,17 +167,26 @@ const Register = () => {
                 Confirm Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
                   id="confirmPassword"
-                  type="password"
-                  className="input pl-10"
+                  type={showConfirm ? 'text' : 'password'}
+                  className="input"
+                  style={{ paddingLeft: '2.5rem', paddingRight: '2.75rem' }}
                   placeholder="Confirm your password"
                   {...registerForm('confirmPassword', {
                     required: 'Please confirm your password',
                     validate: value => value === password || 'Passwords do not match'
                   })}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
               {errors.confirmPassword && (
                 <p className="mt-1 text-sm text-red">{errors.confirmPassword.message}</p>

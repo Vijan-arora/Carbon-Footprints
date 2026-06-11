@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
-import { Leaf, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Leaf, Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const { register: registerForm, handleSubmit, formState: { errors } } = useForm();
@@ -10,16 +10,16 @@ const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data) => {
     setError('');
     setLoading(true);
-
     try {
       await login(data.email, data.password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to login. Please try again.');
+      setError(err.response?.data?.error || 'Failed to login. Please check your credentials and try again.');
     } finally {
       setLoading(false);
     }
@@ -33,16 +33,9 @@ const Login = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-sage/10 dark:bg-green-sage/20 mb-4">
               <Leaf className="w-8 h-8 text-green-sage" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome Back</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sign In</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2">Sign in to continue tracking your carbon footprint</p>
           </div>
-
-          {error && (
-            <div className="mb-6 p-4 bg-red/10 border border-red/20 rounded-lg flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-red flex-shrink-0" />
-              <p className="text-red text-sm">{error}</p>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
@@ -50,11 +43,12 @@ const Login = () => {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
                   id="email"
                   type="email"
-                  className="input pl-10"
+                  className="input"
+                  style={{ paddingLeft: '2.5rem' }}
                   placeholder="you@example.com"
                   {...registerForm('email', {
                     required: 'Email is required',
@@ -75,11 +69,12 @@ const Login = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 <input
                   id="password"
-                  type="password"
-                  className="input pl-10"
+                  type={showPassword ? 'text' : 'password'}
+                  className="input"
+                  style={{ paddingLeft: '2.5rem', paddingRight: '2.75rem' }}
                   placeholder="Enter your password"
                   {...registerForm('password', {
                     required: 'Password is required',
@@ -89,10 +84,26 @@ const Login = () => {
                     }
                   })}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
               {errors.password && (
                 <p className="mt-1 text-sm text-red">{errors.password.message}</p>
               )}
+              <div className="mt-2 text-right">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-green-sage hover:text-green-dark dark:hover:text-green-leaf"
+                >
+                  Forgot password?
+                </Link>
+              </div>
             </div>
 
             <button
@@ -102,12 +113,19 @@ const Login = () => {
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
+
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 dark:bg-red/10 dark:border-red/20">
+                <AlertCircle className="w-5 h-5 text-red flex-shrink-0 mt-0.5" />
+                <p className="text-red text-sm">{error}</p>
+              </div>
+            )}
           </form>
 
           <p className="mt-6 text-center text-gray-600 dark:text-gray-400">
             Don't have an account?{' '}
             <Link to="/register" className="text-green-sage hover:text-green-dark font-medium dark:hover:text-green-leaf">
-              Create one
+              Sign Up
             </Link>
           </p>
         </div>
