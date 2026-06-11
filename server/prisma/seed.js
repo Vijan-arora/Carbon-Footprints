@@ -3,7 +3,6 @@ const prisma = new PrismaClient();
 
 async function main() {
   const emissionFactors = [
-    // Transport (8)
     { category: 'Transport', name: 'Petrol Car', factor_per_unit: 0.21, unit: 'km', description: 'Average petrol car emissions per kilometer' },
     { category: 'Transport', name: 'Diesel Car', factor_per_unit: 0.19, unit: 'km', description: 'Average diesel car emissions per kilometer' },
     { category: 'Transport', name: 'Bus', factor_per_unit: 0.089, unit: 'km', description: 'Public bus emissions per kilometer' },
@@ -12,16 +11,12 @@ async function main() {
     { category: 'Transport', name: 'Domestic Flight', factor_per_unit: 0.255, unit: 'km', description: 'Domestic flight emissions per kilometer' },
     { category: 'Transport', name: 'Auto-Rickshaw', factor_per_unit: 0.075, unit: 'km', description: 'Three-wheeler auto-rickshaw emissions per kilometer' },
     { category: 'Transport', name: 'Electric Car', factor_per_unit: 0.053, unit: 'km', description: 'Electric vehicle emissions (grid average) per kilometer' },
-
-    // Energy (6)
     { category: 'Energy', name: 'Electricity', factor_per_unit: 0.708, unit: 'kWh', description: 'India grid average emissions per kWh' },
     { category: 'Energy', name: 'LPG Cooking', factor_per_unit: 0.52, unit: 'hour', description: 'LPG gas stove emissions per hour of use' },
     { category: 'Energy', name: 'Diesel Generator', factor_per_unit: 2.68, unit: 'hour', description: 'Diesel generator emissions per hour' },
     { category: 'Energy', name: 'Air Conditioner', factor_per_unit: 1.06, unit: 'hour', description: 'AC emissions per hour (1.5 kWh average)' },
     { category: 'Energy', name: 'Water Heater', factor_per_unit: 2.12, unit: 'hour', description: 'Electric water heater emissions per hour' },
     { category: 'Energy', name: 'Ceiling Fan', factor_per_unit: 0.05, unit: 'hour', description: 'Ceiling fan emissions per hour' },
-
-    // Food (7)
     { category: 'Food', name: 'Beef Meal', factor_per_unit: 6.0, unit: 'meal', description: 'Average beef meal carbon footprint' },
     { category: 'Food', name: 'Chicken Meal', factor_per_unit: 1.8, unit: 'meal', description: 'Average chicken meal carbon footprint' },
     { category: 'Food', name: 'Vegetarian Meal', factor_per_unit: 0.8, unit: 'meal', description: 'Average vegetarian meal carbon footprint' },
@@ -29,21 +24,14 @@ async function main() {
     { category: 'Food', name: 'Dairy', factor_per_unit: 1.2, unit: '100g', description: 'Cheese/dairy products per 100 grams' },
     { category: 'Food', name: 'Eggs', factor_per_unit: 0.25, unit: 'unit', description: 'Single egg carbon footprint' },
     { category: 'Food', name: 'Rice', factor_per_unit: 0.28, unit: '100g', description: 'Rice per 100 grams' },
-
-    // Shopping (4)
     { category: 'Shopping', name: 'New Clothing Item', factor_per_unit: 15.0, unit: 'item', description: 'Average new clothing item footprint' },
     { category: 'Shopping', name: 'Electronics Device', factor_per_unit: 350.0, unit: 'device', description: 'Average electronics device footprint' },
     { category: 'Shopping', name: 'Online Delivery Package', factor_per_unit: 0.5, unit: 'package', description: 'Online shopping delivery emissions' },
     { category: 'Shopping', name: 'Plastic Bag', factor_per_unit: 0.08, unit: 'bag', description: 'Single-use plastic bag footprint' },
   ];
 
-  for (const factor of emissionFactors) {
-    await prisma.emissionFactor.upsert({
-      where: { id: undefined },
-      update: {},
-      create: factor,
-    });
-  }
+  await prisma.emissionFactor.deleteMany({});
+  await prisma.emissionFactor.createMany({ data: emissionFactors });
 
   console.log(`Seeded ${emissionFactors.length} emission factors`);
 }
