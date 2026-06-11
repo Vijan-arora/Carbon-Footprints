@@ -1,0 +1,118 @@
+Build a complete, production-ready full-stack web application called "CarbonTrace" — a Carbon Footprint Awareness Platform.
+
+TECH STACK — use exactly these:
+
+Frontend: React 18 + Vite, Tailwind CSS v3, Recharts, React Router v6, Axios, React Hook Form
+Backend: Node.js 20 + Express.js, Prisma ORM, PostgreSQL, bcryptjs, jsonwebtoken, dotenv, cors
+Dev tools: Nodemon, Concurrently (run frontend + backend together with one command)
+
+
+FOLDER STRUCTURE — generate exactly this:
+carbontrace/
+├── client/          ← React + Vite frontend
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── context/
+│   │   ├── hooks/
+│   │   ├── api/
+│   │   └── main.jsx
+│   ├── index.html
+│   └── vite.config.js
+├── server/          ← Node.js + Express backend
+│   ├── routes/
+│   ├── middleware/
+│   ├── controllers/
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   └── seed.js
+│   └── index.js
+├── .env.example
+├── package.json     ← root package with concurrently scripts
+└── README.md
+
+BACKEND — build all of this:
+server/prisma/schema.prisma — Prisma schema with these exact models:
+User: id, name, email, password_hash, daily_goal_kg (default 6.0), streak_days, created_at
+ActivityLog: id, user_id, category, activity_name, quantity, emission_factor, total_kg, logged_at
+EmissionFactor: id, category, name, factor_per_unit, unit, description
+server/prisma/seed.js — Seed at least 25 emission factors:
+
+Transport (8): petrol car per km, diesel car per km, bus per km, metro per km, bicycle, domestic flight per km, auto-rickshaw per km, electric car per km
+Energy (6): electricity per kWh (India grid), LPG cooking per hour, diesel generator per hour, air conditioner per hour, water heater per hour, ceiling fan per hour
+Food (7): beef meal, chicken meal, vegetarian meal, vegan meal, dairy 100g, eggs per unit, rice per 100g
+Shopping (4): new clothing item, electronics device, online delivery package, plastic bag
+
+server/index.js — Express app with cors, json middleware, all routes mounted, error handling middleware
+server/middleware/auth.js — JWT verification middleware, attaches user to req.user
+server/routes/ — separate files: auth.js, logs.js, stats.js, user.js, factors.js
+server/controllers/ — matching controller files with full logic
+All API endpoints with exact behavior:
+
+POST /api/auth/register → hash password with bcrypt (10 rounds), create user, return JWT
+POST /api/auth/login → verify password, return JWT + user object
+GET /api/logs?date=YYYY-MM-DD → return all logs for that date for the logged-in user
+POST /api/logs → create log entry, auto-calculate total_kg = quantity × emission_factor, update streak
+DELETE /api/logs/:id → delete only if it belongs to the logged-in user
+GET /api/stats/weekly → last 7 days, total kg per day, best/worst day
+GET /api/stats/monthly → last 30 days, total kg per day, monthly total, saved vs world average
+PUT /api/user/goal → update daily_goal_kg for the logged-in user
+GET /api/factors → return all emission factors grouped by category
+
+
+FRONTEND — build all of these pages and components:
+Pages:
+
+/login — Login form with email + password, link to register, JWT stored in localStorage, redirect to dashboard on success
+/register — Signup form with name + email + password + confirm password, validation, redirect to dashboard
+/dashboard — Main page (see components below), protected route
+/reports — Weekly + monthly charts page, protected route
+/settings — Goal setting + profile page, protected route
+
+Components:
+
+Navbar — Logo, nav links, dark mode toggle, logout button
+CarbonDial — Animated SVG arc dial. Circumference-based animation on mount. Green below goal, amber near goal, red above. Shows kg value in center + badge (Excellent/On Track/High)
+CategoryCards — 4 cards: Transport, Energy, Food, Shopping. Each shows kg for today, icon, and % change vs yesterday
+ActivityLogger — Category tab selector → dropdown of emission factors → quantity number input → Log button → live feed list of today's entries with delete button
+WeeklyBarChart — Recharts BarChart, last 7 days, goal line overlay, color bars green/amber/red by value
+InsightsTips — Shows after any log. Detects highest category. Shows 3–6 tip cards with icon, title, and kg savings. Clickable for detail
+MonthlyLineChart — Recharts LineChart, 30 days, world average reference line, user goal line
+StreakBadge — Flame icon + "12-day streak" if user stays under goal daily
+GoalSetter — Slider input (1–20 kg), saves via PUT /api/user/goal, shows confirmation
+
+State management: React Context (AuthContext storing JWT + user, LogContext storing today's logs). No Redux needed.
+API layer: client/src/api/axios.js — Axios instance with base URL from env, request interceptor that attaches Authorization Bearer token automatically.
+
+DESIGN — follow exactly:
+
+Colors: --green-dark: #2D5A27, --green-sage: #4A7C59, --green-leaf: #639922, --blue: #378ADD, --amber: #EF9F27, --red: #E24B4A, --bg: #F8FAF8, --card: #FFFFFF
+Font: Inter from Google Fonts
+Dark mode: Tailwind dark: classes, toggled by adding class dark to <html>, preference saved in localStorage
+Cards: white bg, border border-gray-100, rounded-xl, shadow-sm, p-5
+Mobile first: all layouts use Tailwind grid/flex, stack on mobile, side-by-side on md+
+Dial animation: CSS transition on stroke-dashoffset, 1.2s ease-in-out, triggered on mount and on new log
+
+
+ENVIRONMENT:
+.env.example:
+DATABASE_URL=postgresql://user:password@localhost:5432/carbontrace
+JWT_SECRET=your_jwt_secret_here
+JWT_EXPIRES_IN=7d
+PORT=5000
+CLIENT_URL=http://localhost:5173
+vite.config.js — proxy /api to http://localhost:5000 so no CORS issues in dev
+
+ROOT package.json scripts:
+json"dev": "concurrently \"npm run server\" \"npm run client\"",
+"server": "cd server && nodemon index.js",
+"client": "cd client && npm run dev",
+"setup": "npm install && cd client && npm install && cd ../server && npm install && npx prisma migrate dev && npx prisma db seed"
+
+README.md must include:
+
+Prerequisites (Node 20, PostgreSQL, Git)
+Step-by-step setup (clone → copy .env → npm run setup → npm run dev)
+All API endpoints documented with example request/response JSON
+Screenshots section placeholder
+How to reset the database
